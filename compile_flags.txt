@@ -1,0 +1,6 @@
+-xc++
+-lstdc++
+-std=gnu++17
+-I/home/miguel/root/include
+-I/media/Data/ActRoot/install/include
+-I/media/Data/PhysicsClasses/install/include

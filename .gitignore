@@ -1,0 +1,11 @@
+#ignore hidden dir
+.*
+
+#but track this one 
+!.gitignore
+
+# files
+*.root
+*.png
+*.pdf
+*.zip

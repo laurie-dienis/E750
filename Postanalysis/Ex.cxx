@@ -17,7 +17,7 @@ void Ex()
     double m4 = 1.;
     double Ebeam = 1.; 
     double Ex = 0.;
-    ActRoot::DataManager datman {"./configs/data.conf", ActRoot::ModeType::EMerge};
+    ActRoot::DataManager datman {"../configs/data.conf", ActRoot::ModeType::EMerge};
     auto chain {datman.GetJoinedData()};
     ROOT::RDataFrame df {*chain};
 

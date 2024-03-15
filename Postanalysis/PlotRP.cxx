@@ -13,7 +13,7 @@ void PlotRP()
 {
     // ROOT::EnableImplicitMT();
     // Get data
-    ActRoot::DataManager datman {"./configs/data.conf", ActRoot::ModeType::EFilter};
+    ActRoot::DataManager datman {"../configs/data.conf", ActRoot::ModeType::EFilter};
     auto chain {datman.GetJoinedData()};
 
     // DF

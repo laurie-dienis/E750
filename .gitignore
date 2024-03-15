@@ -12,4 +12,4 @@
 *.zip
 
 # ignore certain files to avoid path conflicts
-data.conf
+./configs/data.conf

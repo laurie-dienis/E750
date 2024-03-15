@@ -11,7 +11,7 @@
 #include <vector>
 void PlotSP()
 {
-    ActRoot::DataManager datman {"./configs/data.conf", ActRoot::ModeType::EMerge};
+    ActRoot::DataManager datman {"../configs/data.conf", ActRoot::ModeType::EMerge};
     auto chain {datman.GetJoinedData()};
     ROOT::RDataFrame df {*chain};
 

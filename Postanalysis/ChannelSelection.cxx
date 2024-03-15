@@ -14,7 +14,7 @@
 
 #include <vector>
 
-#include "/media/Data/E750/HistConfig.h"
+#include "../HistConfig.h"
 void ChannelSelection()
 {
     ActRoot::DataManager datman {"../configs/data.conf", ActRoot::ModeType::EMerge};
@@ -33,7 +33,7 @@ void ChannelSelection()
 
     // SRIM table to compute EBeam
     auto* srim {new ActPhysics::SRIM};
-    srim->ReadTable("beam", "/media/Data/E750/Postanalysis/Inputs/SRIM/20Ne_butane_110mbar.txt");
+    srim->ReadTable("beam", "./Inputs/SRIM/20Ne_butane_110mbar.txt");
 
     // Define beam energy from RP!
     // Initial beam energy
@@ -62,8 +62,8 @@ void ChannelSelection()
 
     // Read cuts
     ActRoot::CutsManager<int> cuts;
-    cuts.ReadCut(0, TString::Format("/media/Data/E750/Postanalysis/Cuts/elastic.root"));
-    cuts.ReadCut(1, TString::Format("/media/Data/E750/Postanalysis/Cuts/inelastic.root"));
+    cuts.ReadCut(0, TString::Format("./Cuts/elastic.root"));
+    cuts.ReadCut(1, TString::Format("./Cuts/inelastic.root"));
     if(cuts.GetCut(0)) // elastic
     {
         auto gated {df.Filter([&](float bspx, double esil) { return cuts.IsInside(0, bspx, esil); },

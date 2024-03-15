@@ -10,12 +10,12 @@
 
 #include <vector>
 
-#include "/media/Data/E750/HistConfig.h"
+#include "../HistConfig.h"
 void Ereac()
 {
     // Read data
     ROOT::EnableImplicitMT();
-    ROOT::RDataFrame df {"Pipe1_Tree", "/media/Data/E750/Postanalysis/Outputs/Pipe1/elastic.root"};
+    ROOT::RDataFrame df {"Pipe1_Tree", "./Outputs/Pipe1/elastic.root"};
 
     // Build all the kinematics
     std::vector<ActPhysics::Kinematics> vkins;
@@ -24,7 +24,7 @@ void Ereac()
 
     // Read srim tables
     auto* srim {new ActPhysics::SRIM};
-    srim->ReadTable("light", "/media/Data/E750/Postanalysis/Inputs/SRIM/1H_butane_110mbar.txt");
+    srim->ReadTable("light", "./Inputs/SRIM/1H_butane_110mbar.txt");
 
     // 1-> Define energy at the vertex
     auto def = df.Define("EVertex",

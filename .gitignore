@@ -9,3 +9,6 @@
 *.png
 *.pdf
 *.zip
+
+# ignore certain files to avoid path conflicts
+data.conf

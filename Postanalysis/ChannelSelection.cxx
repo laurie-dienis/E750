@@ -1,17 +1,20 @@
 #include "ActCutsManager.h"
 #include "ActDataManager.h"
+#include "ActKinematics.h"
 #include "ActMergerData.h"
+#include "ActSRIM.h"
 #include "ActTypes.h"
 
 #include "ROOT/RDataFrame.hxx"
 
 #include "TCanvas.h"
-#include "ActKinematics.h"
+#include "TMath.h"
 #include "TROOT.h"
 #include "TString.h"
 
-#include "/home/laurie/E750/HistConfig.h"
+#include <vector>
 
+#include "/media/Data/E750/HistConfig.h"
 void ChannelSelection()
 {
     ActRoot::DataManager datman {"../configs/data.conf", ActRoot::ModeType::EMerge};
@@ -28,10 +31,39 @@ void ChannelSelection()
     // Book histograms
     auto hESilR {df.Histo2D(HistConfig::ESilR, "fBSP.fCoordinates.fX", "ESil")};
 
+    // SRIM table to compute EBeam
+    auto* srim {new ActPhysics::SRIM};
+    srim->ReadTable("beam", "/media/Data/E750/Postanalysis/Inputs/SRIM/20Ne_butane_110mbar.txt");
+
+    // Define beam energy from RP!
+    // Initial beam energy
+    double TIni {89.34}; // MeV
+    df = df.Define("EBeamRP",
+                   [&](const ActRoot::MergerData& d)
+                   { return srim->Slow("beam", TIni, d.fRP.X(), d.fThetaBeam * TMath::DegToRad()); },
+                   {"MergerData"});
+    // Build Ex
+    std::vector<ActPhysics::Kinematics> vkins;
+    for(int s = 0; s < df.GetNSlots(); s++)
+        vkins.push_back({"20Ne", "1H", "1H", "20Ne"});
+    df = df.DefineSlot("Ex",
+                       [&](unsigned int slot, double ebeam, double esil, float theta)
+                       {
+                           vkins[slot].SetBeamEnergy(ebeam);
+                           return vkins[slot].ReconstructExcitationEnergy(esil, theta * TMath::DegToRad());
+                       },
+                       {"EBeamRP", "ESil", "fThetaLight"});
+    // Book histograms
+    auto hEBeamRP {df.Histo1D(HistConfig::TBeam, "EBeamRP")};
+    hEBeamRP->SetTitle("T_{beam} from SRIM and RP");
+    auto hEBeamX {df.Histo2D(HistConfig::TBeamRPx, "fRP.fCoordinates.fX", "EBeamRP")};
+    auto hEx {df.Histo1D(HistConfig::Ex, "Ex")};
+    auto hESilEx {df.Histo2D(HistConfig::ESilEx, "ESil", "Ex")};
+
     // Read cuts
     ActRoot::CutsManager<int> cuts;
-    cuts.ReadCut(0, TString::Format("/home/laurie/E750/Postanalysis/Cuts/elastic.root").Data());
-    cuts.ReadCut(1, TString::Format("/home/laurie/E750/Postanalysis/Cuts/inelastic.root").Data());
+    cuts.ReadCut(0, TString::Format("/media/Data/E750/Postanalysis/Cuts/elastic.root"));
+    cuts.ReadCut(1, TString::Format("/media/Data/E750/Postanalysis/Cuts/inelastic.root"));
     if(cuts.GetCut(0)) // elastic
     {
         auto gated {df.Filter([&](float bspx, double esil) { return cuts.IsInside(0, bspx, esil); },
@@ -47,8 +79,19 @@ void ChannelSelection()
         gated.Snapshot("Pipe1_Tree", "./Outputs/Pipe1/inelastic.root");
     }
 
+
     // Plotting
     auto* c0 {new TCanvas {"c10", "Pipe 1 canvas 0"}};
+    c0->DivideSquare(6);
+    c0->cd(1);
     hESilR->DrawClone("colz");
     cuts.DrawAll();
+    c0->cd(2);
+    hEBeamRP->DrawClone();
+    c0->cd(3);
+    hEx->DrawClone();
+    c0->cd(4);
+    hESilEx->DrawClone("colz");
+    c0->cd(5);
+    hEBeamX->DrawClone("colz");
 }

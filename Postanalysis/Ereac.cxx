@@ -10,12 +10,12 @@
 
 #include <vector>
 
-#include "/home/laurie/E750/HistConfig.h"
+#include "/media/Data/E750/HistConfig.h"
 void Ereac()
 {
     // Read data
     ROOT::EnableImplicitMT();
-    ROOT::RDataFrame df {"Pipe1_Tree", "/home/laurie/E750/Postanalysis/Outputs/Pipe1/elastic.root"};
+    ROOT::RDataFrame df {"Pipe1_Tree", "/media/Data/E750/Postanalysis/Outputs/Pipe1/elastic.root"};
 
     // Build all the kinematics
     std::vector<ActPhysics::Kinematics> vkins;
@@ -24,7 +24,7 @@ void Ereac()
 
     // Read srim tables
     auto* srim {new ActPhysics::SRIM};
-    srim->ReadTable("light", "/home/laurie/E750/Postanalysis/Inputs/SRIM/1H_butane_110mbar.txt");
+    srim->ReadTable("light", "/media/Data/E750/Postanalysis/Inputs/SRIM/1H_butane_110mbar.txt");
 
     // 1-> Define energy at the vertex
     auto def = df.Define("EVertex",
@@ -32,7 +32,7 @@ void Ereac()
                          { return srim->EvalInitialEnergy("light", esil, d.fTrackLength); },
                          {"MergerData", "ESil"});
 
-    // 2-> Define energy of beam at RP
+    // 2-> Define energy of beam at RP from BSP
     def = def.DefineSlot(
         "EReac",
         [&](unsigned int slot, double evertex, float theta)
@@ -60,6 +60,10 @@ void Ereac()
     auto hKin {def.Histo2D(HistConfig::Kin, "fThetaLight", "EVertex")};
     auto hCM {def.Histo2D(HistConfig::ThetaCMECM, "ThetaCM", "ECM")};
     auto hLab {def.Histo2D(HistConfig::ThetaLabEReac, "fThetaLight", "EReac")};
+    auto hEReac {def.Histo1D(HistConfig::TBeam, "EReac")};
+    hEReac->SetTitle("T_{beam} from BSP and E_{x} = 0");
+    auto hEBeamRP {def.Histo1D(HistConfig::TBeam, "EBeamRP")};
+    hEBeamRP->SetTitle("T_{beam} from SRIM and RP");
 
     // Plot theoretical kin at beam entrance
     ActPhysics::Kinematics theo {"20Ne", "1H", "1H", "20Ne", 89.34};
@@ -72,7 +76,9 @@ void Ereac()
     hKin->DrawClone("colz");
     gtheo->Draw("l");
     c0->cd(2);
-    hCM->DrawClone("colz");
-    c0->cd(3);
     hLab->DrawClone("colz");
+    c0->cd(3);
+    hEReac->DrawClone();
+    c0->cd(4);
+    hEBeamRP->DrawClone();
 }

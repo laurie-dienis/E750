@@ -36,7 +36,9 @@ void Ereac()
     def = def.DefineSlot(
         "EReac",
         [&](unsigned int slot, double evertex, float theta)
-        { return vkins[slot].ReconstructBeamEnergyFromLabKinematics(evertex, theta * TMath::DegToRad()); },
+        {
+        std::cout << "ereac = " << vkins[slot].ReconstructBeamEnergyFromLabKinematics(evertex, theta * TMath::DegToRad()) << " MeV" << "\n";
+        return (vkins[slot].ReconstructBeamEnergyFromLabKinematics(evertex, theta * TMath::DegToRad())/21.)+2.43; },
         {"EVertex", "fThetaLight"});
 
     // 3-> Energy at CM
@@ -56,6 +58,8 @@ void Ereac()
                              return vkins[slot].ReconstructTheta3CMFromLab(evertex, theta);
                          },
                          {"EReac", "EVertex", "fThetaLight"});
+
+
     // Book some histograms
     auto hKin {def.Histo2D(HistConfig::Kin, "fThetaLight", "EVertex")};
     auto hCM {def.Histo2D(HistConfig::ThetaCMECM, "ThetaCM", "ECM")};

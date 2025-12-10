@@ -13,7 +13,7 @@ inline ROOT::RDF::TH2DModel ThetaCMECM {
     "hCM", "#theta_{CM} vs E_{CM};#theta_{CM} [#circ];E_{CM} [MeV]", 200, 0, 60, 200, 19500, 19600};
 
 inline ROOT::RDF::TH2DModel ThetaLabEReac {
-    "hLab", "#theta_{Lab} vs E_{reac};#theta_{Lab} [#circ];E_{reac} [MeV]", 200, 0, 60, 200, 0, 60};
+    "hLab", "#theta_{Lab} vs E*_{^{21}Na,elastic};#theta_{Lab} [#circ];E*_{^{21}Na,elastic} [MeV]", 200, 0, 60, 200, 2, 6};
 
 inline ROOT::RDF::TH1DModel TBeam {"hBeam", "T_{beam};T_{beam} [MeV]", 200, 0, 120};
 

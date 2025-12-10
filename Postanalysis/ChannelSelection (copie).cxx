@@ -32,23 +32,15 @@ void ChannelSelection()
     auto hESilR {df.Histo2D(HistConfig::ESilR, "fBSP.fCoordinates.fX", "ESil")};
 
     // SRIM table to compute EBeam
-    auto* srim_heavy {new ActPhysics::SRIM};
-    srim_heavy->ReadTable("beam", "./Inputs/SRIM/20Ne_butane_110mbar.txt");
-    auto* srim_light {new ActPhysics::SRIM};
-    srim_light->ReadTable("light", "./Inputs/SRIM/1H_butane_110mbar.txt");
+    auto* srim {new ActPhysics::SRIM};
+    srim->ReadTable("beam", "./Inputs/SRIM/20Ne_butane_110mbar.txt");
 
-    // Define energy at the vertex
-    df = df.Define("ESil_i",
-                         [&](const ActRoot::MergerData& d, double esil)
-                         { return srim_light->EvalInitialEnergy("light", esil, d.fTrackLength); },
-                         {"MergerData", "ESil"});
-    
     // Define beam energy from RP!
     // Initial beam energy
     double TIni {89.34}; // MeV
     df = df.Define("EBeamRP",
                    [&](const ActRoot::MergerData& d)
-                   { return srim_heavy->Slow("beam", TIni, d.fRP.X(), d.fThetaBeam * TMath::DegToRad()); },
+                   { return srim->Slow("beam", TIni, d.fRP.X(), d.fThetaBeam * TMath::DegToRad()); },
                    {"MergerData"});
     // Build Ex
     std::vector<ActPhysics::Kinematics> vkins;
@@ -60,7 +52,7 @@ void ChannelSelection()
                            vkins[slot].SetBeamEnergy(ebeam);
                            return vkins[slot].ReconstructExcitationEnergy(esil, theta * TMath::DegToRad());
                        },
-                       {"EBeamRP", "ESil_i", "fThetaLight"});
+                       {"EBeamRP", "ESil", "fThetaLight"});
     // Book histograms
     auto hEBeamRP {df.Histo1D(HistConfig::TBeam, "EBeamRP")};
     hEBeamRP->SetTitle("T_{beam} from SRIM and RP");
@@ -86,6 +78,7 @@ void ChannelSelection()
         std::cout << "Saving inelastic tree" << '\n';
         gated.Snapshot("Pipe1_Tree", "./Outputs/Pipe1/inelastic.root");
     }
+
 
     // Plotting
     auto* c0 {new TCanvas {"c10", "Pipe 1 canvas 0"}};
